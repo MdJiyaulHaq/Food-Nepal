@@ -1,0 +1,26 @@
+version: "3.9"
+
+services:
+  web:
+    build:
+      context: .
+      args:
+        - DEV=true
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/app
+    command: python manage.py runserver 0.0.0.0:8000
+
+  db:
+    image: postgres:13
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: mydatabase
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+
+volumes:
+  db_data:

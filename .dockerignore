@@ -1,0 +1,23 @@
+# ignore Git files and directories
+.git
+.gitignore
+
+# ignore Docker files and directories
+.docker
+
+# ignore python files and directories
+*.pyc
+__pycache__
+app/__pycache__
+app/*/__pycache__
+app/*/*/__pycache__
+
+# ignore virtual environment directories
+app/*.pyc
+.venv/
+venv/
+.env
+
+# ignore Jupyter Notebook files
+*.ipynb_checkpoints
+
