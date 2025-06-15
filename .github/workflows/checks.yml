@@ -6,19 +6,20 @@ on: [push]
 jobs:
   test-lint:
     name: Test and Lint
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-latest # Use the most up-to-date runner
+
     steps:
-      - name: Login to DockerHub
-        uses: docker/login-action@v1
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Run Tests
-        run: docker compose run --rm web sh -c "python manage.py test"
+        run: docker-compose run --rm web sh -c "pytest"
 
-      - name: Run flake8
-        run: docker compose run --rm web sh -c "flake8"
+      - name: Run Linter
+        run: docker-compose run --rm web sh -c "flake8"

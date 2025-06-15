@@ -11,12 +11,13 @@ __pycache__
 app/__pycache__
 app/*/__pycache__
 app/*/*/__pycache__
+app/*/*/*/__pycache__
 
 # ignore virtual environment directories
 app/*.pyc
 .venv/
 venv/
-.env
+.env/
 
 # ignore Jupyter Notebook files
 *.ipynb_checkpoints

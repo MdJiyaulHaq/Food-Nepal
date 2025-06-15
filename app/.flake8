@@ -1,2 +1,2 @@
 [flake8]
-exclude = .git, __pycache__, build, dist, .tox, .venv, venv, env, .mypy_cache, .pytest_cache, .eggs, *.egg-info, .idea, .vscode, .mypy_cache, .pytest_cache, docs, migrations, manage.py, settings.py, local_settings.py, .env, .env.local, .env.production, .env.development
+exclude = migrations, __pycache__, manage.py, settings.py, .venv, .env, .git, .idea, .vscode
