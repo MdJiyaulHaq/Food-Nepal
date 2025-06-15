@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   web:
     build:
@@ -11,7 +9,7 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/app
-    command: python manage.py runserver 0.0.0.0:8000
+    command: sh -c "while ! pg_isready -h db -p 5432 -U myuser; do sleep 1; done && python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -30,6 +28,11 @@ services:
       POSTGRES_DB: mydatabase
       POSTGRES_USER: myuser
       POSTGRES_PASSWORD: mypassword
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U myuser"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 volumes:
   dev_db_data:
