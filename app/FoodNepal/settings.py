@@ -148,8 +148,8 @@ SPECTACULAR_SETTINGS = {
     "DESCRIPTION": "API for recipes",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
-    "COMPONENT_SPLIT_REQUEST": True,
-    "PREPROCESSING_HOOKS": [
-        "drf_spectacular.hooks.preprocess_schema_for_view",
-    ],
+    # "COMPONENT_SPLIT_REQUEST": True,
+    # "PREPROCESSING_HOOKS": [
+    #     "drf_spectacular.hooks.preprocess_schema_for_view",
+    # ],
 }
