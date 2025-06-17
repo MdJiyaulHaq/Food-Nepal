@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "core",  # Custom app for user management
+    "users",
     "rest_framework",
     "drf_spectacular",
 ]
