@@ -39,4 +39,5 @@ urlpatterns = [
         "user/",
         include("users.urls", namespace="users"),
     ),
+    path("recipes/", include("recipe.urls", namespace="recipes")),
 ]
