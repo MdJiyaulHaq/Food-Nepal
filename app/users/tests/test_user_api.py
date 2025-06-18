@@ -3,6 +3,24 @@ from pytest import fixture, mark
 import pytest
 
 
+@pytest.fixture
+def create_user(client):
+    def do_create_user(**kwargs):
+        data = {
+            "name": "testuser",
+            "email": "testuser@example.com",
+            "password": "testpassword",
+        }
+        data.update(kwargs)
+        return client.post(
+            "/user/create/",
+            data=json.dumps(data),
+            content_type="application/json",
+        )
+
+    return do_create_user
+
+
 @pytest.mark.django_db
 class TestCreateUserAPI:
     def test_create_user(self, client):
@@ -22,31 +40,9 @@ class TestCreateUserAPI:
         assert "id" in response.json()
         print(response.json())
 
-    def test_create_user_duplicate_email(self, client):
-        # First create
-        client.post(
-            "/user/create/",
-            data=json.dumps(
-                {
-                    "name": "testuser",
-                    "email": "testuser@example.com",
-                    "password": "testpassword",
-                }
-            ),
-            content_type="application/json",
-        )
-        # Second attempt with same email
-        response = client.post(
-            "/user/create/",
-            data=json.dumps(
-                {
-                    "name": "testuser",
-                    "email": "testuser@example.com",
-                    "password": "testpassword",
-                }
-            ),
-            content_type="application/json",
-        )
+    def test_create_user_duplicate_email(self, client, create_user):
+        create_user()
+        response = create_user()
         assert response.status_code == 400
         assert response.json()["email"] == ["user with this email already exists."]
 
@@ -70,18 +66,8 @@ class TestCreateUserAPI:
 
 @pytest.mark.django_db
 class TestUserLoginAPI:
-    def test_create_token(self, client):
-        client.post(
-            "/user/create/",
-            data=json.dumps(
-                {
-                    "name": "testuser",
-                    "email": "testuser@example.com",
-                    "password": "testpassword",
-                }
-            ),
-            content_type="application/json",
-        )
+    def test_create_token(self, client, create_user):
+        create_user()
         response = client.post(
             "/user/token/",
             data=json.dumps(
