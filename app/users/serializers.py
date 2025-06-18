@@ -14,6 +14,19 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
 
+    def update(self, instance, validated_data):
+        instance.name = validated_data.get("name", instance.name)
+        instance.email = validated_data.get("email", instance.email)
+        password = validated_data.get("password")
+        if password:
+            instance.set_password(password)
+        instance.save()
+        return instance
+
+    def delete(self, instance):
+        instance.delete()
+        return instance
+
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError("User with this email already exists.")
@@ -52,3 +65,6 @@ class UserLoginSerializer(serializers.Serializer):
             raise serializers.ValidationError("Incorrect password.")
 
         return {"user": user}
+
+    def me(self, request):
+        return {"user": request.user}
