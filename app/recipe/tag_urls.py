@@ -1,12 +1,9 @@
 from rest_framework.routers import DefaultRouter
-from recipe import views
+from recipe.views import TagViewSet
 from django.urls import path, include
 
-app_name = "recipe"
-
 router = DefaultRouter()
-router.register("", views.RecipeViewSet, basename="recipe")
-
+router.register("", TagViewSet, basename="tag")
 
 urlpatterns = [
     path("", include(router.urls)),

@@ -39,5 +39,6 @@ urlpatterns = [
         "user/",
         include("users.urls", namespace="users"),
     ),
-    path("recipes/", include("recipe.urls", namespace="recipes")),
+    path("recipes/", include(("recipe.urls", "recipes"), namespace="recipes")),
+    path("tags/", include(("recipe.tag_urls", "tags"), namespace="tags")),
 ]
