@@ -68,16 +68,29 @@ class TestCreateUserAPI:
         ]
 
 
-# @pytest.mark.django_db
-# class TestUserLoginAPI:
-#     def test_create_token(self, client):
-#         response = client.post(
-#             "/user/create_token/",
-#             data=json.dumps({
-#                 "email": "testuser@example.com",
-#                 "password": "testpassword",
-#             }),
-#             content_type="application/json",
-#         )
-#         assert response.status_code == 200
-#         assert "token" in response.json()
+@pytest.mark.django_db
+class TestUserLoginAPI:
+    def test_create_token(self, client):
+        client.post(
+            "/user/create/",
+            data=json.dumps(
+                {
+                    "name": "testuser",
+                    "email": "testuser@example.com",
+                    "password": "testpassword",
+                }
+            ),
+            content_type="application/json",
+        )
+        response = client.post(
+            "/user/token/",
+            data=json.dumps(
+                {
+                    "email": "testuser@example.com",
+                    "password": "testpassword",
+                }
+            ),
+            content_type="application/json",
+        )
+        assert response.status_code == 200
+        assert "token" in response.json()

@@ -21,7 +21,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     def validate_password(self, value):
         if len(value) < 8:
-            raise serializers.ValidationError("Ensure this field has at least 8 characters.")
+            raise serializers.ValidationError(
+                "Ensure this field has at least 8 characters."
+            )
         return value
 
     def validate(self, attrs):
@@ -32,3 +34,21 @@ class UserSerializer(serializers.ModelSerializer):
         if "password" not in attrs or not attrs["password"]:
             raise serializers.ValidationError("Password is required.")
         return attrs
+
+
+class UserLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, attrs):
+        email = attrs.get("email")
+        password = attrs.get("password")
+
+        if not User.objects.filter(email=email).exists():
+            raise serializers.ValidationError("User with this email does not exist.")
+
+        user = User.objects.get(email=email)
+        if not user.check_password(password):
+            raise serializers.ValidationError("Incorrect password.")
+
+        return {"user": user}

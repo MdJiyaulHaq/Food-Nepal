@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "core",  # Custom app for user management
     "users",
     "rest_framework",
+    "rest_framework.authtoken",
     "drf_spectacular",
 ]
 
