@@ -20,73 +20,107 @@ def client(user):
 
 
 @pytest.mark.django_db
-def test_create_recipe(client):
-    url = reverse("recipe:recipe-list")
-    data = {
-        "title": "Test Recipe",
-        "description": "This is a test recipe.",
-        "time_minutes": 30,
-        "price": "9.99",
-    }
-    response = client.post(url, data, format="json")
+class TestRecipeAPI:
+    def test_create_recipe(self, client):
+        url = reverse("recipe:recipe-list")
+        data = {
+            "title": "Test Recipe",
+            "description": "This is a test recipe.",
+            "time_minutes": 30,
+            "price": "9.99",
+        }
+        response = client.post(url, data, format="json")
 
-    assert response.status_code == status.HTTP_201_CREATED
-    assert Recipe.objects.count() == 1
+        assert response.status_code == status.HTTP_201_CREATED
+        assert Recipe.objects.count() == 1
+
+    def test_list_recipes(self, client, user):
+        url = reverse("recipe:recipe-list")
+        baker.make(Recipe, user=user, _quantity=5)
+
+        response = client.get(url)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == 5
+
+    def test_retrieve_recipe(self, client, user):
+        recipe = baker.make(Recipe, user=user)
+        url = reverse("recipe:recipe-detail", args=[recipe.pk])
+
+        response = client.get(url)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["id"] == recipe.pk
+        assert response.data["title"] == recipe.title
+        assert response.data["description"] == recipe.description
+        assert response.data["time_minutes"] == recipe.time_minutes
+        assert Decimal(response.data["price"]) == recipe.price
+
+    def test_update_recipe(self, client, user):
+        recipe = baker.make(Recipe, user=user)
+        url = reverse("recipe:recipe-detail", args=[recipe.pk])
+        data = {
+            "title": "Updated Recipe",
+            "description": "This is an updated test recipe.",
+            "time_minutes": 45,
+            "price": "12.99",
+        }
+
+        response = client.put(url, data, format="json")
+
+        assert response.status_code == status.HTTP_200_OK
+        recipe.refresh_from_db()
+        assert recipe.title == data["title"]
+        assert recipe.description == data["description"]
+        assert recipe.time_minutes == data["time_minutes"]
+        assert recipe.price == Decimal(data["price"])
+
+    def test_delete_recipe(self, client, user):
+        recipe = baker.make(Recipe, user=user)
+        url = reverse("recipe:recipe-detail", args=[recipe.pk])
+
+        response = client.delete(url)
+
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert not Recipe.objects.filter(pk=recipe.pk).exists()
 
 
 @pytest.mark.django_db
-def test_list_recipes(client, user):
-    url = reverse("recipe:recipe-list")
-    baker.make(Recipe, user=user, _quantity=5)
+class TestRecipeDetailAPI:
+    def test_get_detail(self, client, user):
+        recipe = baker.make(Recipe, user=user)
+        url = reverse("recipe:recipe-detail", args=[recipe.pk])
 
-    response = client.get(url)
+        response = client.get(url)
 
-    assert response.status_code == status.HTTP_200_OK
-    assert len(response.data) == 5
+        assert response.status_code == status.HTTP_200_OK
+        assert response.data["id"] == recipe.pk
+        assert response.data["title"] == recipe.title
 
+    def test_update_detail(self, client, user):
+        recipe = baker.make(Recipe, user=user)
+        url = reverse("recipe:recipe-detail", args=[recipe.pk])
+        data = {
+            "title": "Updated Detail Title",
+            "description": "Updated description.",
+            "time_minutes": 60,
+            "price": "15.00",
+        }
 
-@pytest.mark.django_db
-def test_retrieve_recipe(client, user):
-    recipe = baker.make(Recipe, user=user)
-    url = reverse("recipe:recipe-detail", args=[recipe.pk])
+        response = client.patch(url, data, format="json")
 
-    response = client.get(url)
+        assert response.status_code == status.HTTP_200_OK
+        recipe.refresh_from_db()
+        assert recipe.title == data["title"]
+        assert recipe.description == data["description"]
+        assert recipe.time_minutes == data["time_minutes"]
+        assert recipe.price == Decimal(data["price"])
 
-    assert response.status_code == status.HTTP_200_OK
-    assert response.data["id"] == recipe.pk
-    assert response.data["title"] == recipe.title
-    assert response.data["description"] == recipe.description
-    assert response.data["time_minutes"] == recipe.time_minutes
-    assert Decimal(response.data["price"]) == recipe.price
+    def test_delete_detail(self, client, user):
+        recipe = baker.make(Recipe, user=user)
+        url = reverse("recipe:recipe-detail", args=[recipe.pk])
 
+        response = client.delete(url)
 
-@pytest.mark.django_db
-def test_update_recipe(client, user):
-    recipe = baker.make(Recipe, user=user)
-    url = reverse("recipe:recipe-detail", args=[recipe.pk])
-    data = {
-        "title": "Updated Recipe",
-        "description": "This is an updated test recipe.",
-        "time_minutes": 45,
-        "price": "12.99",
-    }
-
-    response = client.put(url, data, format="json")
-
-    assert response.status_code == status.HTTP_200_OK
-    recipe.refresh_from_db()
-    assert recipe.title == data["title"]
-    assert recipe.description == data["description"]
-    assert recipe.time_minutes == data["time_minutes"]
-    assert recipe.price == Decimal(data["price"])
-
-
-@pytest.mark.django_db
-def test_delete_recipe(client, user):
-    recipe = baker.make(Recipe, user=user)
-    url = reverse("recipe:recipe-detail", args=[recipe.pk])
-
-    response = client.delete(url)
-
-    assert response.status_code == status.HTTP_204_NO_CONTENT
-    assert not Recipe.objects.filter(pk=recipe.pk).exists()
+        assert response.status_code == status.HTTP_204_NO_CONTENT
+        assert not Recipe.objects.filter(pk=recipe.pk).exists()
