@@ -165,7 +165,7 @@ class TestRecipeWithTag:
 
     def test_update_recipe_add_existing_tags(self, client, user):
         recipe = baker.make(Recipe, user=user)
-        tag = baker.make("core.Tag", user=user, label="Vegetarian") # noqa
+        tag = baker.make("core.Tag", user=user, label="Vegetarian")  # noqa
         url = reverse("recipe:recipe-detail", args=[recipe.pk])
         payload = {
             "tags": [{"label": "Vegetarian"}],
@@ -177,3 +177,46 @@ class TestRecipeWithTag:
         recipe.refresh_from_db()
         assert recipe.tags.count() == 1
         assert recipe.tags.filter(label="Vegetarian").exists()
+
+
+# @pytest.mark.django_db
+# class TestRecipeWithIngredient:
+#     def test_create_recipe_with_ingredients(self, client, user):
+#         url = reverse("recipe:recipe-list")
+#         payload = {
+#             "title": "Pasta Primavera",
+#             "description": "Classic pasta with vegetables.",
+#             "time_minutes": 25,
+#             "price": "10.00",
+#             "ingredients": [{"name": "Pasta"}, {"name": "Zucchini"}],
+#             "tags": [],
+#         }
+
+#         response = client.post(url, payload, format="json")
+
+#         assert response.status_code == status.HTTP_201_CREATED
+#         recipe = Recipe.objects.get(pk=response.data["id"])
+#         assert recipe.ingredients.count() == 2
+#         assert recipe.ingredients.filter(name="Pasta").exists()
+#         assert recipe.ingredients.filter(name="Zucchini").exists()
+
+#     def test_create_recipe_with_existing_ingredients(self, client, user):
+#         ingredient1 = baker.make("core.Ingredient", user=user, name="Garlic")
+#         ingredient2 = baker.make("core.Ingredient", user=user, name="Olive Oil")
+#         url = reverse("recipe:recipe-list")
+#         payload = {
+#             "title": "Garlic Pasta",
+#             "description": "Simple and delicious.",
+#             "time_minutes": 20,
+#             "price": "8.00",
+#             "ingredients": [{"name": "Garlic"}, {"name": "Olive Oil"}],
+#             "tags": [],
+#         }
+
+#         response = client.post(url, payload, format="json")
+
+#         assert response.status_code == status.HTTP_201_CREATED
+#         recipe = Recipe.objects.get(pk=response.data["id"])
+#         assert recipe.ingredients.count() == 2
+#         assert recipe.ingredients.filter(name="Garlic").exists()
+#         assert recipe.ingredients.filter(name="Olive Oil").exists()

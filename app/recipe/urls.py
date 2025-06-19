@@ -5,7 +5,8 @@ from django.urls import path, include
 app_name = "recipe"
 
 router = DefaultRouter()
-router.register("", views.RecipeViewSet, basename="recipe")
+router.register("recipes", views.RecipeViewSet, basename="recipe")
+router.register("ingredients", views.IngredientViewSet, basename="ingredient")
 
 
 urlpatterns = [
