@@ -2,6 +2,8 @@ from django.contrib.auth import get_user_model
 import pytest
 from core.models import User, CustomUserManager
 from typing import cast
+from core.models import Tag, Ingredient
+from model_bakery import baker
 
 
 @pytest.mark.django_db
@@ -40,3 +42,21 @@ class TestUserModel:
 
         for raw_email, expected in emails:
             assert manager.normalize_an_email(raw_email) == expected
+
+
+@pytest.mark.django_db
+class TestTagModel:
+    def test_create_tag(self):
+        tag = baker.make(Tag, label="Vegan")
+        assert str(tag) == "Vegan"
+        assert tag.label == "Vegan"
+        assert tag.user is not None
+
+
+@pytest.mark.django_db
+class TestIngredientModel:
+    def test_create_ingredient(self):
+        ingredient = baker.make(Ingredient, name="Salt")
+        assert str(ingredient) == "Salt"
+        assert ingredient.name == "Salt"
+        assert ingredient.user is not None

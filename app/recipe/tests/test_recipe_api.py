@@ -165,7 +165,7 @@ class TestRecipeWithTag:
 
     def test_update_recipe_add_existing_tags(self, client, user):
         recipe = baker.make(Recipe, user=user)
-        tag = baker.make("core.Tag", user=user, label="Vegetarian")
+        tag = baker.make("core.Tag", user=user, label="Vegetarian") # noqa
         url = reverse("recipe:recipe-detail", args=[recipe.pk])
         payload = {
             "tags": [{"label": "Vegetarian"}],

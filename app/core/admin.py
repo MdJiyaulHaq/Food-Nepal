@@ -1,5 +1,5 @@
 from django.contrib import admin
-from core.models import Tag, User, Recipe
+from core.models import Ingredient, Tag, User, Recipe
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 
 # Register your models here.
@@ -57,3 +57,10 @@ class RecipeAdmin(admin.ModelAdmin):
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
     list_display = ["id", "label", "user"]
+    readonly_fields = ["id"]
+
+
+@admin.register(Ingredient)
+class IngredientAdmin(admin.ModelAdmin):
+    list_display = ["id", "name", "user"]
+    readonly_fields = ["id"]
