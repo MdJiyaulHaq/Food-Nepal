@@ -36,6 +36,11 @@ class UserAdmin(BaseUserAdmin):
     )
 
 
+class RecipeTagInline(admin.TabularInline):
+    model = Recipe.tags.through
+    extra = 1
+
+
 @admin.register(Recipe)
 class RecipeAdmin(admin.ModelAdmin):
     """Admin class for Recipe model."""
@@ -46,6 +51,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_filter = ("user",)
     raw_id_fields = ("user",)
     autocomplete_fields = ("user",)
+    inlines = [RecipeTagInline]
 
 
 @admin.register(Tag)

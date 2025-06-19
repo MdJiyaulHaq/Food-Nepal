@@ -28,6 +28,7 @@ class TestRecipeAPI:
             "description": "This is a test recipe.",
             "time_minutes": 30,
             "price": "9.99",
+            "tags": [],
         }
         response = client.post(url, data, format="json")
 
@@ -64,6 +65,7 @@ class TestRecipeAPI:
             "description": "This is an updated test recipe.",
             "time_minutes": 45,
             "price": "12.99",
+            "tags": [],
         }
 
         response = client.put(url, data, format="json")
@@ -124,3 +126,54 @@ class TestRecipeDetailAPI:
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert not Recipe.objects.filter(pk=recipe.pk).exists()
+
+
+@pytest.mark.django_db
+class TestRecipeWithTag:
+    def test_create_recipe_with_new_tags(self, client, user):
+        url = reverse("recipe:recipe-list")
+        payload = {
+            "title": "Curry with Spices",
+            "description": "Flavorful and rich.",
+            "time_minutes": 40,
+            "price": "15.50",
+            "tags": [{"label": "Spicy"}, {"label": "Dinner"}],
+        }
+
+        response = client.post(url, payload, format="json")
+
+        assert response.status_code == status.HTTP_201_CREATED
+        recipe = Recipe.objects.get(pk=response.data["id"])
+        assert recipe.tags.count() == 2
+        assert recipe.tags.filter(label="Spicy").exists()
+        assert recipe.tags.filter(label="Dinner").exists()
+
+    def test_retrieve_recipes_with_tags(self, client, user):
+        tag1 = baker.make("core.Tag", user=user, label="Healthy")
+        tag2 = baker.make("core.Tag", user=user, label="Quick")
+        recipe = baker.make(Recipe, user=user)
+        recipe.tags.set([tag1, tag2])
+
+        url = reverse("recipe:recipe-list")
+        response = client.get(url)
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == 1
+        labels = [tag["label"] for tag in response.data[0]["tags"]]
+        assert "Healthy" in labels
+        assert "Quick" in labels
+
+    def test_update_recipe_add_existing_tags(self, client, user):
+        recipe = baker.make(Recipe, user=user)
+        tag = baker.make("core.Tag", user=user, label="Vegetarian")
+        url = reverse("recipe:recipe-detail", args=[recipe.pk])
+        payload = {
+            "tags": [{"label": "Vegetarian"}],
+        }
+
+        response = client.patch(url, payload, format="json")
+
+        assert response.status_code == status.HTTP_200_OK
+        recipe.refresh_from_db()
+        assert recipe.tags.count() == 1
+        assert recipe.tags.filter(label="Vegetarian").exists()
