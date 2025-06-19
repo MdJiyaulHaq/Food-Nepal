@@ -1,10 +1,9 @@
-from decimal import Decimal
 import pytest
-from rest_framework import status
-from rest_framework.test import APIClient
+from core.models import User
 from django.urls import reverse
 from model_bakery import baker
-from core.models import Recipe, User
+from rest_framework import status
+from rest_framework.test import APIClient
 
 
 @pytest.fixture

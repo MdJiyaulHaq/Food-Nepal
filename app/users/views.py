@@ -1,13 +1,11 @@
-from django.shortcuts import render
-from users.serializers import UserLoginSerializer, UserSerializer
-from rest_framework.authtoken.views import ObtainAuthToken
-from rest_framework.settings import api_settings
-from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
-from rest_framework import generics
-from django.contrib.auth import get_user_model
 from typing import Any
 
+from django.contrib.auth import get_user_model
+from rest_framework import generics
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+from rest_framework.settings import api_settings
+from users.serializers import UserLoginSerializer, UserSerializer
 
 User = get_user_model()
 

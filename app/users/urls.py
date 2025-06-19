@@ -1,12 +1,13 @@
-app_name = "users"
-from django.urls import path, include
+from django.urls import path
 from users.views import (
     UserCreateView,
+    UserDeleteView,
     UserLoginView,
     UserRetrieveView,
     UserUpdateView,
-    UserDeleteView,
 )
+
+app_name = "users"
 
 urlpatterns = [
     path("create/", UserCreateView.as_view(), name="create-user"),

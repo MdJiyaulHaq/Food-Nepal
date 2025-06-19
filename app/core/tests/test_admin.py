@@ -1,10 +1,10 @@
 from typing import Any
+
+import pytest
 from django.contrib.auth import get_user_model
 from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APIClient
 from model_bakery import baker
-import pytest
+from rest_framework import status
 
 
 @pytest.mark.django_db
