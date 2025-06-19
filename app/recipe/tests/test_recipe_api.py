@@ -5,6 +5,9 @@ from rest_framework.test import APIClient
 from django.urls import reverse
 from model_bakery import baker
 from core.models import Recipe, User
+import tempfile
+import os
+from PIL import Image
 
 
 @pytest.fixture
@@ -220,3 +223,28 @@ class TestRecipeWithTag:
 #         assert recipe.ingredients.count() == 2
 #         assert recipe.ingredients.filter(name="Garlic").exists()
 #         assert recipe.ingredients.filter(name="Olive Oil").exists()
+
+
+@pytest.mark.django_db
+class TestRecipeImageUpload:
+    def test_upload_image_to_recipe(self, client, user):
+        recipe = baker.make("core.Recipe", user=user)
+        url = reverse("recipe:recipe-upload-image", args=[recipe.pk])
+
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as image_file:
+            img = Image.new("RGB", (100, 100))
+            img.save(image_file, format="JPEG")
+            image_file.seek(0)
+
+        with open(image_file.name, "rb") as img_file:
+            response = client.post(url, {"image": img_file}, format="multipart")
+
+        os.remove(image_file.name)
+
+        assert response.status_code == status.HTTP_200_OK
+        recipe.refresh_from_db()
+        assert bool(recipe.image)
+
+        # Delete image file from media storage
+        if recipe.image and os.path.exists(recipe.image.path):
+            os.remove(recipe.image.path)
