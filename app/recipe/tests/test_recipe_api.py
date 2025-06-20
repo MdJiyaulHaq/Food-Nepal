@@ -226,6 +226,39 @@ class TestRecipeWithTag:
 
 
 @pytest.mark.django_db
+class TestFilterRecipe:
+    def test_filter_by_tags(self, client, user):
+        vegan_tag = baker.make("core.Tag", user=user, label="Vegan")
+        nonveg_tag = baker.make("core.Tag", user=user, label="Non Veg")
+        recipe1 = baker.make(Recipe, user=user, title="Vegan Salad")
+        recipe2 = baker.make(Recipe, user=user, title="Chicken Curry")
+        recipe1.tags.add(vegan_tag)
+        recipe2.tags.add(nonveg_tag)
+
+        url = reverse("recipe:recipe-list")
+        response = client.get(url, {"tags": f"{vegan_tag.id}"})
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == 1
+        assert response.data[0]["title"] == "Vegan Salad"
+
+    def test_filter_by_ingredients(self, client, user):
+        garlic = baker.make("core.Ingredient", user=user, name="Garlic")
+        chicken = baker.make("core.Ingredient", user=user, name="Chicken")
+        recipe1 = baker.make(Recipe, user=user, title="Garlic Bread")
+        recipe2 = baker.make(Recipe, user=user, title="Chicken Biryani")
+        recipe1.ingredients.add(garlic)
+        recipe2.ingredients.add(chicken)
+
+        url = reverse("recipe:recipe-list")
+        response = client.get(url, {"ingredients": f"{garlic.id}"})
+
+        assert response.status_code == status.HTTP_200_OK
+        assert len(response.data) == 1
+        assert response.data[0]["title"] == "Garlic Bread"
+
+
+@pytest.mark.django_db
 class TestRecipeImageUpload:
     def test_upload_image_to_recipe(self, client, user):
         recipe = baker.make("core.Recipe", user=user)

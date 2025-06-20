@@ -1,11 +1,13 @@
 from core.models import Recipe, Tag, Ingredient
 from rest_framework import viewsets
 from rest_framework.authentication import TokenAuthentication
+from rest_framework.request import Request
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 from .serializers import (
     RecipeDetailSerializer,
     RecipeSerializer,
@@ -15,6 +17,22 @@ from .serializers import (
 )
 
 
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "tags",
+                OpenApiTypes.STR,
+                description="Comma Seperated list of tag IDs to filter by",
+            ),
+            OpenApiParameter(
+                "ingredients",
+                OpenApiTypes.STR,
+                description="Comma Seperated list of ingredients IDs to filter by",
+            ),
+        ]
+    )
+)
 class RecipeViewSet(viewsets.ModelViewSet):
     """View for managing recipe APIs."""
 
@@ -23,9 +41,25 @@ class RecipeViewSet(viewsets.ModelViewSet):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+    def _params_to_ints(self, qs):
+        return [int(str_id) for str_id in qs.split(",")]
+
     def get_queryset(self):  # type: ignore
         """Return recipes for the authenticated user only."""
-        return self.queryset.filter(user=self.request.user).order_by("-id")
+        request = self.request
+        if not isinstance(request, Request):
+            request = Request(self.request)
+        tags = request.query_params.get("tags")
+        ingredients = request.query_params.get("ingredients")
+        queryset = self.queryset
+        if tags:
+            tag_ids = self._params_to_ints(tags)
+            queryset = queryset.filter(tags__id__in=tag_ids)
+        if ingredients:
+            ingredient_ids = self._params_to_ints(ingredients)
+            queryset = queryset.filter(ingredients__id__in=ingredient_ids)
+
+        return queryset.filter(user=request.user).order_by("-id").distinct()
 
     def get_serializer_class(self):  # type: ignore
         if self.action == "list":
