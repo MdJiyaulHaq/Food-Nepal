@@ -82,6 +82,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "assigned_only",
+                OpenApiTypes.INT,
+                enum=[0, 1],
+                description="Filter by tags assigned to recipes.",
+            )
+        ]
+    )
+)
 class TagViewSet(viewsets.ModelViewSet):
     serializer_class = TagSerializer
     queryset = Tag.objects.all()
@@ -89,12 +101,31 @@ class TagViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):  # type: ignore
-        return self.queryset.filter(user=self.request.user).order_by("-label")
+        request = self.request
+        if not isinstance(request, Request):
+            request = Request(self.request)
+        assigned_only = bool(int(request.query_params.get("assigned_only", 0)))
+        queryset = self.queryset
+        if assigned_only:
+            queryset = queryset.filter(recipe__isnull=False)
+        return queryset.filter(user=request.user).order_by("-label").distinct()
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 
 
+@extend_schema_view(
+    list=extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "assigned_only",
+                OpenApiTypes.INT,
+                enum=[0, 1],
+                description="Filter by ingredients assigned to recipes.",
+            )
+        ]
+    )
+)
 class IngredientViewSet(viewsets.ModelViewSet):
     serializer_class = IngredientSerializer
     queryset = Ingredient.objects.all()
@@ -102,7 +133,14 @@ class IngredientViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):  # type: ignore
-        return self.queryset.filter(user=self.request.user).order_by("-name")
+        request = self.request
+        if not isinstance(request, Request):
+            request = Request(self.request)
+        assigned_only = bool(int(request.query_params.get("assigned_only", 0)))
+        queryset = self.queryset
+        if assigned_only:
+            queryset = queryset.filter(recipe__isnull=False)
+        return queryset.filter(user=request.user).order_by("-name").distinct()
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

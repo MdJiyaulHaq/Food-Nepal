@@ -1,5 +1,5 @@
 import pytest
-from core.models import User
+from core.models import User, Recipe
 from django.urls import reverse
 from model_bakery import baker
 from rest_framework import status
@@ -67,3 +67,21 @@ class TestTagAPI:
 
         assert response.status_code == status.HTTP_204_NO_CONTENT
         assert not tag.__class__.objects.filter(pk=tag.pk).exists()
+
+
+@pytest.mark.django_db
+class TestFilteringTag:
+    def test_filtering_tags_assigned_to_recipes(self, client, user):
+        tag1 = baker.make("core.Tag", user=user, label="Vegan")
+        tag2 = baker.make("core.Tag", user=user, label="Non Veg")  # noqa
+        recipe = baker.make(Recipe, user=user, title="Salad")
+        recipe.tags.add(tag1)
+
+        url = reverse("tags:tag-list")
+        response = client.get(url, {"assigned_only": 1})
+
+        assert response.status_code == status.HTTP_200_OK
+        labels = [item["label"] for item in response.data]
+        assert "Vegan" in labels
+        assert "Non Veg" not in labels
+        assert labels == list(set(labels))
