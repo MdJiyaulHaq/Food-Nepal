@@ -17,6 +17,7 @@ services:
       DB_NAME: mydatabase
       DB_USER: myuser
       DB_PASSWORD: mypassword
+      DEBUG: 1
 
     depends_on:
       - db
