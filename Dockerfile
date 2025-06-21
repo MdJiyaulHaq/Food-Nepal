@@ -7,6 +7,7 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /app
 COPY ./requirements.txt /tmp/requirements.txt
 COPY ./requirements.dev.txt /tmp/requirements.dev.txt
+COPY ./scripts /scripts
 COPY ./app /app
 
 EXPOSE 8000
@@ -30,8 +31,11 @@ RUN python -m venv /.venv && \
     mkdir -p /vol/web/media && \
     mkdir -p /vol/web/static && \
     chown -R django-user:django-user /vol && \
-    chmod -R 755 /vol
+    chmod -R 755 /vol && \
+    chmod -R +x /scripts
 
-ENV PATH="/.venv/bin:$PATH"
+ENV PATH="/scripts:/.venv/bin:$PATH"
 
 USER django-user
+
+CMD [ "run.sh" ]
