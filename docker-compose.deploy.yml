@@ -37,7 +37,7 @@ services:
     depends_on:
       - web
     ports:
-      - 8000:8000
+      - 80:8000
     volumes:
       - static_data:/vol/static
 
