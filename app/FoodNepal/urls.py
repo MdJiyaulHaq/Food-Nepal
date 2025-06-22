@@ -23,14 +23,15 @@ from drf_spectacular.views import (
     SpectacularAPIView,
     SpectacularSwaggerView,
 )
+from core.views import HealthCheckView
 
 admin.site.site_header = "FoodNepal Administration"
 admin.site.index_title = "Admin Dashboard"
 admin.site.site_title = "FoodNepal Admin Portal"
 
-
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("api/health/", HealthCheckView.as_view(), name="health-check"),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/docs/",
