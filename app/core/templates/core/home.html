@@ -1,0 +1,29 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+</head>
+
+<body>
+    <h1>Welcome to FoodNepal</h1>
+
+    <p>This is the home page of the FoodNepal application.</p>
+
+    <ul>
+        <li><a href="{% url 'swagger-ui' %}">Documentation</a></li>
+        <li><a href="{% url 'admin:index' %}">Admin Dashboard</a></li>
+        <li><a href="{% url 'health-check' %}">Health Check</a></li>
+    </ul>
+
+    <footer>
+        <p>&copy; 2025 FoodNepal. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>
