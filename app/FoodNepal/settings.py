@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 import os
 from pathlib import Path
 import os
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -79,20 +80,22 @@ WSGI_APPLICATION = "FoodNepal.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-if DEBUG:
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+if DATABASE_URL:
+    DATABASES = {"default": dj_database_url.parse(DATABASE_URL, conn_max_age=600)}
+else:
+    # fallback for local/dev
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
             "NAME": os.environ.get("DB_NAME", "mydatabase"),
             "USER": os.environ.get("DB_USER", "myuser"),
             "PASSWORD": os.environ.get("DB_PASSWORD", "mypassword"),
-            "HOST": os.environ.get("DB_HOST", "db"),
+            "HOST": os.environ.get("DB_HOST", "localhost"),
             "PORT": os.environ.get("DB_PORT", "5432"),
         }
     }
-else:
-    DATABASES = os.getenv("DATABASE_URL")
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

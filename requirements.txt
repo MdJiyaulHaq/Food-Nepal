@@ -3,6 +3,7 @@ attrs==25.3.0
 Django==5.2.2
 djangorestframework==3.16.0
 drf-spectacular==0.28.0
+dj-database-url==3.0.1
 inflection==0.5.1
 iniconfig==2.1.0
 jsonschema==4.24.0
